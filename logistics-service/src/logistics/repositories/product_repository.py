@@ -13,11 +13,3 @@ class ProductRepository(BaseRepository[Product]):
         )
         result = await self.db_session.execute(query)
         return result.scalar_one_or_none()
-
-    async def update_stock(self, product_id: UUID, quantity_change: int) -> None:
-        """
-        Updates stock directly. 
-        Note: Complex transactional logic stays in the Service layer.
-        """
-        # This is a simple update helper; atomic locking is handled in the service.
-        pass

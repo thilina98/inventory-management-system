@@ -22,6 +22,5 @@ async def list_products(
     limit: int = Query(10, ge=1, le=100),
     db: AsyncSession = Depends(get_db)
 ):
-    print("++++++++++++++++++++++++++++++")
     service = ProductService(db)
     return await service.get_all_products(skip=skip, limit=limit)
