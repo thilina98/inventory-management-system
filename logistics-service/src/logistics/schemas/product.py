@@ -21,6 +21,5 @@ class ProductRead(ProductBase):
     id: int
     created_at: datetime
     updated_at: Optional[datetime] = None
-    
-    # We allow the model to read from ORM attributes
+
     model_config = ConfigDict(from_attributes=True)
