@@ -6,18 +6,17 @@ from sqlalchemy.ext.asyncio import (
 )
 from src.logistics.core.config import settings
 
-# 1. Create the Async Engine
-# We use the URL from your config (core/config.py)
+# Create the Async Engine
 engine = create_async_engine(
     str(settings.SQLALCHEMY_DATABASE_URI),
     echo=settings.DEBUG,
     future=True,
-    pool_pre_ping=True, # Critical for production: checks connection health before use
-    pool_size=20,       # Tuned for high throughput
+    pool_pre_ping=True, # checks connection health before use
+    pool_size=20,
     max_overflow=10,
 )
 
-# 2. Create the Session Factory
+# Create the Session Factory
 AsyncSessionLocal = async_sessionmaker(
     bind=engine,
     class_=AsyncSession,
@@ -25,7 +24,7 @@ AsyncSessionLocal = async_sessionmaker(
     autoflush=False,
 )
 
-# 3. Dependency Injection for FastAPI
+# Dependency Injection for FastAPI
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
     """
     Dependency to provide a database session for a request.

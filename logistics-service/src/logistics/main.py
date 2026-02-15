@@ -1,11 +1,14 @@
-from fastapi import FastAPI, Request, status
+from fastapi import FastAPI, Request, status, Depends
 from fastapi.responses import JSONResponse
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy import text
 import logging
 
 from src.logistics.api.v1.products import router as products
 from src.logistics.api.v1.orders import router as orders
 from src.logistics.core.config import settings
+from src.logistics.db.session import get_db
 
 # Setup logging for production monitoring
 logging.basicConfig(level=logging.INFO)
@@ -37,6 +40,14 @@ app.include_router(products, prefix=settings.API_V1_STR)
 app.include_router(orders, prefix=settings.API_V1_STR)
 
 @app.get("/health", tags=["Health"])
-async def health_check():
-    """Service health check for Docker/Kubernetes probes."""
-    return {"status": "healthy"}
+async def health_check(db: AsyncSession = Depends(get_db)):
+    try:
+        await db.execute(text("SELECT 1"))
+        return {"status": "healthy", "database": "connected"}
+    except Exception as e:
+        logger.error(f"Health check failed: {str(e)}")
+        return JSONResponse(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            # content={"status": "unhealthy", "detail": "Database connection failed"}
+            content={"status": "unhealthy", "detail": str(e)}
+        )
