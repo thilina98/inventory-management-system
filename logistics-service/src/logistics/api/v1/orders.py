@@ -5,7 +5,7 @@ from src.logistics.services.order_service import OrderService
 from src.logistics.schemas.order import OrderCreate, OrderRead, OrderUpdateStatus
 from src.logistics.schemas.enums import OrderStatus
 
-router = APIRouter(prefix="/order", tags=["Order"])
+router = APIRouter(prefix="/orders", tags=["Order"])
 
 @router.post("/", response_model=OrderRead, status_code=status.HTTP_201_CREATED)
 async def create_order(

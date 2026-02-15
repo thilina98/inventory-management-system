@@ -6,7 +6,7 @@ from src.logistics.db.session import get_db
 from src.logistics.services.product_service import ProductService
 from src.logistics.schemas.product import ProductCreate, ProductRead
 
-router = APIRouter(prefix="/product", tags=["Product"])
+router = APIRouter(prefix="/products", tags=["Product"])
 
 @router.post("/", response_model=ProductRead, status_code=status.HTTP_201_CREATED)
 async def create_product(
@@ -22,5 +22,6 @@ async def list_products(
     limit: int = Query(10, ge=1, le=100),
     db: AsyncSession = Depends(get_db)
 ):
+    print("++++++++++++++++++++++++++++++")
     service = ProductService(db)
     return await service.get_all_products(skip=skip, limit=limit)

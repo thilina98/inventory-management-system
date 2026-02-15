@@ -4,6 +4,24 @@ from decimal import Decimal
 from datetime import datetime
 from src.logistics.schemas.enums import OrderStatus
 
+# --- Order Item Schemas ---
+
+class OrderItemBase(BaseModel):
+    product_id: int
+    quantity: int = Field(..., gt=0, description="Quantity must be at least 1")
+
+# Input: User only provides product and quantity
+class OrderItemCreate(OrderItemBase):
+    pass
+
+# Output: We return everything, including the historical price
+class OrderItemRead(OrderItemBase):
+    id: int
+    price_at_order: Decimal
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 # --- Order Schemas ---
 
 class OrderBase(BaseModel):
@@ -24,21 +42,3 @@ class OrderRead(OrderBase):
 
 class OrderUpdateStatus(BaseModel):
     status: OrderStatus
-
-
-# --- Order Item Schemas ---
-
-class OrderItemBase(BaseModel):
-    product_id: int
-    quantity: int = Field(..., gt=0, description="Quantity must be at least 1")
-
-# Input: User only provides product and quantity
-class OrderItemCreate(OrderItemBase):
-    pass
-
-# Output: We return everything, including the historical price
-class OrderItemRead(OrderItemBase):
-    id: int
-    price_at_order: Decimal
-
-    model_config = ConfigDict(from_attributes=True)

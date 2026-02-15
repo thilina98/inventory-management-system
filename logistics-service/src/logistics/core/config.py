@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     APP_NAME: str = "Logistics Service"
     API_V1_STR: str = "/api/v1"
     DEBUG: bool = False
-    
+
     # Database Config
     POSTGRES_SERVER: str
     POSTGRES_USER: str
