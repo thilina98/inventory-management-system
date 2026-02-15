@@ -3,11 +3,12 @@ from typing import List, Optional
 from decimal import Decimal
 from datetime import datetime
 from src.logistics.schemas.enums import OrderStatus
+from uuid import UUID
 
 # --- Order Item Schemas ---
 
 class OrderItemBase(BaseModel):
-    product_id: int
+    product_id: UUID
     quantity: int = Field(..., gt=0, description="Quantity must be at least 1")
 
 # Input: User only provides product and quantity
@@ -16,7 +17,7 @@ class OrderItemCreate(OrderItemBase):
 
 # Output: We return everything, including the historical price
 class OrderItemRead(OrderItemBase):
-    id: int
+    id: UUID
     price_at_order: Decimal
 
     model_config = ConfigDict(from_attributes=True)
@@ -33,7 +34,7 @@ class OrderCreate(OrderBase):
 
 # Output: Full order details with nested items
 class OrderRead(OrderBase):
-    id: int
+    id: UUID
     status: OrderStatus
     created_at: datetime
     items: List[OrderItemRead] # Nested schema for eager loading display

@@ -1,11 +1,13 @@
 from sqlalchemy import Column, Integer, String, Numeric, DateTime, CheckConstraint
 from sqlalchemy.sql import func
+from sqlalchemy.dialects.postgresql import UUID
+import uuid
 from src.logistics.db.base import Base
 
 class Product(Base):
     __tablename__ = "products"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
     name = Column(String(255), nullable=False, index=True) # Indexed for high-throughput searching 
     price = Column(Numeric(10, 2), nullable=False) # Precision for currency 
     stock_quantity = Column(Integer, nullable=False, default=0)

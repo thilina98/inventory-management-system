@@ -2,6 +2,7 @@ from pydantic import BaseModel, Field, ConfigDict
 from decimal import Decimal
 from typing import Optional
 from datetime import datetime
+from uuid import UUID
 
 # Base Schema: Shared properties
 class ProductBase(BaseModel):
@@ -18,7 +19,7 @@ class ProductUpdate(BaseModel):
     stock_quantity: Optional[int] = Field(None, ge=0)
 
 class ProductRead(ProductBase):
-    id: int
+    id: UUID
     created_at: datetime
     updated_at: Optional[datetime] = None
 
