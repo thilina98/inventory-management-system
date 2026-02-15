@@ -38,6 +38,18 @@ class Settings(BaseSettings):
             path=self.POSTGRES_DB,
         )
 
+    @computed_field
+    @property
+    def SQLALCHEMY_TEST_DATABASE_URI(self) -> PostgresDsn:
+        return PostgresDsn.build(
+            scheme="postgresql+asyncpg",
+            username=self.POSTGRES_USER,
+            password=self.POSTGRES_PASSWORD,
+            host="db_test" if os.getenv("DOCKER_ENV") else "localhost",
+            port=5433 if not os.getenv("DOCKER_ENV") else 5432,
+            path=f"{self.POSTGRES_DB}_test",
+        )
+
 @lru_cache
 def get_settings() -> Settings:
     return Settings()
