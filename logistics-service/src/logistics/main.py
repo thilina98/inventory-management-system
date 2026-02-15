@@ -52,8 +52,8 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.exc import SQLAlchemyError
 import logging
 
-from src.logistics.api.v1.product_router import router as product_router
-from src.logistics.api.v1.order_router import router as order_router
+from src.logistics.api.v1.product import router as product
+from src.logistics.api.v1.order import router as order
 from src.logistics.core.config import settings
 
 # Setup logging for production monitoring
