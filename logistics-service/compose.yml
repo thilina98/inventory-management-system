@@ -1,0 +1,52 @@
+services:
+  logistics-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: logistics-service:local
+    container_name: logistics_api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://user:password@db:5432/logistics_db
+      - ENV=development
+    # Dev Command: We can use 'uv run' here if mounted, or just direct python
+    # since we are syncing the folder.
+    command: uvicorn logistics.main:app --host 0.0.0.0 --port 8000 --reload
+    depends_on:
+      db:
+        condition: service_healthy
+    
+    develop:
+      watch:
+        - action: sync
+          path: ./src
+          target: /app/src
+          ignore:
+            - __pycache__
+        - action: rebuild
+          path: uv.lock
+        - action: rebuild
+          path: pyproject.toml
+
+  db:
+    image: postgres:15-alpine
+    container_name: logistics_db
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: logistics_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d logistics_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
