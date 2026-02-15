@@ -12,7 +12,7 @@ class ProductService:
     async def create_product(self, product_in: ProductCreate) -> Product:
         """
         Creates a new product. 
-        Validation of non-negative stock and price is handled by the Pydantic schema[cite: 18].
+        Validation of non-negative stock and price is handled by the Pydantic schema.
         """
         product_data = product_in.model_dump()
         new_product = await self.repository.create(product_data)
@@ -22,7 +22,7 @@ class ProductService:
 
     async def get_all_products(self, skip: int = 0, limit: int = 100) -> List[Product]:
         """
-        Returns a paginated list of active products[cite: 22].
+        Returns a paginated list of active products.
         Soft-deleted products are filtered out at the repository level.
         """
         return await self.repository.list(skip=skip, limit=limit)

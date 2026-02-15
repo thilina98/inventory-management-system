@@ -20,7 +20,7 @@ class BaseRepository(Generic[ModelType]):
         return result.scalar_one_or_none()
 
     async def list(self, skip: int = 0, limit: int = 100) -> List[ModelType]:
-        """List records with pagination[cite: 22]."""
+        """List records with pagination"""
         query = (
             select(self.model)
             .where(self.model.deleted_at == None)
@@ -34,5 +34,5 @@ class BaseRepository(Generic[ModelType]):
         """Create a new database record."""
         db_obj = self.model(**obj_in_data)
         self.db_session.add(db_obj)
-        # We don't commit here; the Service layer manages the transaction boundary[cite: 22].
+        # We don't commit here; the Service layer manages the transaction boundary
         return db_obj

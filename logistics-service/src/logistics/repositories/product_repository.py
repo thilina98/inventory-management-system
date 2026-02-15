@@ -16,7 +16,7 @@ class ProductRepository(BaseRepository[Product]):
     async def update_stock(self, product_id: int, quantity_change: int) -> None:
         """
         Updates stock directly. 
-        Note: Complex transactional logic stays in the Service layer[cite: 22, 42].
+        Note: Complex transactional logic stays in the Service layer.
         """
         # This is a simple update helper; atomic locking is handled in the service.
         pass
