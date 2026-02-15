@@ -64,7 +64,7 @@ class OrderService:
 
     async def update_status(self, order_id: int, new_status: OrderStatus) -> Order:
         """Updates status with state transition validation."""
-        order = await self.repository.get(order_id)
+        order = await self.repository.get_with_items(order_id)
         if not order:
             raise HTTPException(status_code=404, detail="Order not found")
 
