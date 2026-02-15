@@ -1,1 +1,45 @@
-# Configuration settings for the application
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import PostgresDsn, computed_field
+from functools import lru_cache
+import os
+
+class Settings(BaseSettings):
+    """
+    Application Settings.
+    Validation is performed automatically by Pydantic.
+    """
+    model_config = SettingsConfigDict(
+        env_file=".env", 
+        env_ignore_empty=True,
+        extra="ignore"
+    )
+
+    # App Config
+    APP_NAME: str = "Logistics Service"
+    API_V1_STR: str = "/api/v1"
+    DEBUG: bool = False
+    
+    # Database Config
+    POSTGRES_SERVER: str
+    POSTGRES_USER: str
+    POSTGRES_PASSWORD: str
+    POSTGRES_DB: str
+    POSTGRES_PORT: int = 5432
+
+    @computed_field  # type: ignore[misc]
+    @property
+    def SQLALCHEMY_DATABASE_URI(self) -> PostgresDsn:
+        return PostgresDsn.build(
+            scheme="postgresql+asyncpg", # Using asyncpg for high-throughput async SQLAlchemy
+            username=self.POSTGRES_USER,
+            password=self.POSTGRES_PASSWORD,
+            host=self.POSTGRES_SERVER,
+            port=self.POSTGRES_PORT,
+            path=self.POSTGRES_DB,
+        )
+
+@lru_cache
+def get_settings() -> Settings:
+    return Settings()
+
+settings = get_settings()
