@@ -11,9 +11,9 @@ engine = create_async_engine(
     str(settings.SQLALCHEMY_DATABASE_URI),
     echo=settings.DEBUG,
     future=True,
-    pool_pre_ping=True, # checks connection health before use
-    pool_size=20,
-    max_overflow=10,
+    pool_size=settings.DB_POOL_SIZE,
+    max_overflow=settings.DB_MAX_OVERFLOW,
+    pool_pre_ping=settings.DB_POOL_PRE_PING,
 )
 
 # Create the Session Factory
