@@ -8,16 +8,15 @@ services:
     restart: unless-stopped
     ports:
       - "8000:8000"
-    environment:
-      - DATABASE_URL=postgresql+asyncpg://user:password@db:5432/logistics_db
-      - ENV=development
+    env_file:
+      - .env
     # Dev Command: We can use 'uv run' here if mounted, or just direct python
     # since we are syncing the folder.
     command: uvicorn logistics.main:app --host 0.0.0.0 --port 8000 --reload
     depends_on:
       db:
         condition: service_healthy
-    
+
     develop:
       watch:
         - action: sync
