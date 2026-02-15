@@ -3,9 +3,10 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from src.logistics.models.order import Order, OrderItem
 from src.logistics.repositories.base import BaseRepository
+from uuid import UUID
 
 class OrderRepository(BaseRepository[Order]):
-    async def get_with_items(self, order_id: int) -> Optional[Order]:
+    async def get_with_items(self, order_id: UUID) -> Optional[Order]:
         """
         Retrieves an order with all its items eagerly loaded in a single logical operation.
         Using selectinload is the industry standard for high-throughput async loading

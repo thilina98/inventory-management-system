@@ -4,6 +4,7 @@ from src.logistics.db.session import get_db
 from src.logistics.services.order_service import OrderService
 from src.logistics.schemas.order import OrderCreate, OrderRead, OrderUpdateStatus
 from src.logistics.schemas.enums import OrderStatus
+from uuid import UUID
 
 router = APIRouter(prefix="/orders", tags=["Order"])
 
@@ -21,7 +22,7 @@ async def create_order(
 
 @router.get("/{order_id}", response_model=OrderRead)
 async def get_order(
-    order_id: int, 
+    order_id: UUID, 
     db: AsyncSession = Depends(get_db)
 ):
     """
@@ -36,7 +37,7 @@ async def get_order(
 
 @router.patch("/{order_id}/status", response_model=OrderRead)
 async def update_order_status(
-    order_id: int,
+    order_id: UUID,
     status_update: OrderUpdateStatus,
     db: AsyncSession = Depends(get_db)
 ):
