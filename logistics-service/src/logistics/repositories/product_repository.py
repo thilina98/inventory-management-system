@@ -13,3 +13,13 @@ class ProductRepository(BaseRepository[Product]):
         )
         result = await self.db_session.execute(query)
         return result.scalar_one_or_none()
+
+    async def get_many_for_update(self, product_ids: list[UUID]) -> list[Product]:
+        query = (
+            select(self.model)
+            .where(self.model.id.in_(product_ids))
+            .where(self.model.deleted_at == None)
+            .with_for_update()
+        )
+        result = await self.db_session.execute(query)
+        return result.scalars().all()

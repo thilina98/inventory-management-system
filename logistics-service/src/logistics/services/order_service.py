@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.logistics.models.order import Order, OrderItem
 from src.logistics.models.product import Product
 from src.logistics.repositories.order_repository import OrderRepository
+from src.logistics.repositories.product_repository import ProductRepository
 from src.logistics.schemas.order import OrderCreate
 from src.logistics.schemas.enums import OrderStatus
 
@@ -13,13 +14,13 @@ class OrderService:
     def __init__(self, db: AsyncSession):
         self.db = db
         self.repository = OrderRepository(Order, db)
+        self.product_repository = ProductRepository(Product, db)
 
     async def create_order(self, order_in: OrderCreate) -> Order:
         """
         Creates an order transactionally.
         Supports nested transactions if called within an existing session context.
         """
-        # Seniority Check: Handle existing transactions (e.g., from tests)
         if self.db.in_transaction():
             async with self.db.begin_nested():
                 return await self._create_order_logic(order_in)
@@ -34,42 +35,41 @@ class OrderService:
         self.db.add(new_order)
         await self.db.flush()
 
-        for item_in in order_in.items:
-            # 2. Lock Product
-            product_query = (
-                select(Product)
-                .where(Product.id == item_in.product_id, Product.deleted_at == None)
-                .with_for_update()
-            )
-            result = await self.db.execute(product_query)
-            product = result.scalar_one_or_none()
+        # sort prdduct IDs to prevent deadlocks
+        item_map = {item.product_id: item.quantity for item in order_in.items}
+        sorted_product_ids = sorted(item_map.keys())
 
-            # 3. Validations
-            if not product:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Product {item_in.product_id} not found."
-                )
-            
-            if product.stock_quantity < item_in.quantity:
+        # 3. Batch Fetch & Lock (Solves N+1 Problem)
+        products = await self.product_repository.get_many_for_update(sorted_product_ids)
+
+        if len(products) != len(sorted_product_ids):
+            found_ids = {p.id for p in products}
+            missing_ids = set(sorted_product_ids) - found_ids
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, 
+                detail=f"Products not found: {missing_ids}"
+            )
+
+        for product in products:
+            qty_needed = item_map[product.id]
+
+            if product.stock_quantity < qty_needed:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=f"Insufficient stock for {product.name}."
+                    detail=f"Insufficient stock for {product.name}"
                 )
 
-            # 4. Update Stock
-            product.stock_quantity -= item_in.quantity
-            
+            product.stock_quantity -= qty_needed
+
             order_item = OrderItem(
                 order_id=new_order.id,
                 product_id=product.id,
-                quantity=item_in.quantity,
+                quantity=qty_needed,
                 price_at_order=product.price
             )
             self.db.add(order_item)
 
         await self.db.flush()
-
         return await self.repository.get_with_items(new_order.id)
 
     # ... keep get_order and update_status as they were ...
