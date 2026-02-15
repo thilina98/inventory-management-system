@@ -8,10 +8,10 @@ services:
     restart: unless-stopped
     ports:
       - "8000:8000"
+    environment:
+      - DOCKER_ENV=True
     env_file:
       - .env
-    # Dev Command: We can use 'uv run' here if mounted, or just direct python
-    # since we are syncing the folder.
     command: uvicorn logistics.main:app --host 0.0.0.0 --port 8000 --reload
     depends_on:
       db:
@@ -52,9 +52,9 @@ services:
     image: postgres:15-alpine
     container_name: logistics_db_test
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=logistics_test
+      - POSTGRES_USER=${POSTGRES_USER:-user}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-password}
+      - POSTGRES_DB=${POSTGRES_DB:-logistics_db}_test
     ports:
       - "5433:5432" # different host port
 
