@@ -68,6 +68,8 @@ class OrderService:
             )
             self.db.add(order_item)
 
+        await self.db.flush()
+
         return await self.repository.get_with_items(new_order.id)
 
     # ... keep get_order and update_status as they were ...
