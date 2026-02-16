@@ -26,7 +26,6 @@ app = FastAPI(
 async def sqlalchemy_exception_handler(request: Request, exc: SQLAlchemyError):
     """
     Catch-all for database errors to prevent leaking internal DB details.
-    Returns a 500 Internal Server Error[cite: 40].
     """
     logger.error(f"Database error: {str(exc)}")
     return JSONResponse(

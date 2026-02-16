@@ -30,7 +30,7 @@ class OrderService:
 
     async def _create_order_logic(self, order_in: OrderCreate) -> Order:
         """Internal logic to be run inside a transaction block."""
-        # 1. Initialize Order
+        # Initialize Order
         new_order = Order(status=OrderStatus.PENDING)
         self.db.add(new_order)
         await self.db.flush()
@@ -39,7 +39,7 @@ class OrderService:
         item_map = {item.product_id: item.quantity for item in order_in.items}
         sorted_product_ids = sorted(item_map.keys())
 
-        # 3. Batch Fetch & Lock (Solves N+1 Problem)
+        # Batch Fetch & Lock (for N+1 Problem)
         products = await self.product_repository.get_many_for_update(sorted_product_ids)
 
         if len(products) != len(sorted_product_ids):
@@ -72,12 +72,10 @@ class OrderService:
         await self.db.flush()
         return await self.repository.get_with_items(new_order.id)
 
-    # ... keep get_order and update_status as they were ...
     async def get_order(self, order_id: int) -> Optional[Order]:
         return await self.repository.get_with_items(order_id)
 
     async def update_status(self, order_id: int, new_status: OrderStatus) -> Order:
-        # Simplified for brevity - logic remains the same
         order = await self.repository.get(order_id)
         if not order:
             raise HTTPException(status_code=404, detail="Order not found")

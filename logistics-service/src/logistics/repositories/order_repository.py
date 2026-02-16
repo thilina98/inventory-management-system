@@ -9,8 +9,6 @@ class OrderRepository(BaseRepository[Order]):
     async def get_with_items(self, order_id: UUID) -> Optional[Order]:
         """
         Retrieves an order with all its items eagerly loaded in a single logical operation.
-        Using selectinload is the industry standard for high-throughput async loading
-        of one-to-many relationships.
         """
         query = (
             select(self.model)
@@ -41,6 +39,5 @@ class OrderRepository(BaseRepository[Order]):
     def add_order_item(self, order_item: OrderItem) -> None:
         """
         Helper to add an item to the session.
-        The actual transactional logic and stock validation will occur in the Service layer.
         """
         self.db_session.add(order_item)

@@ -13,7 +13,6 @@ class ProductService:
     async def create_product(self, product_in: ProductCreate) -> Product:
         """
         Creates a new product.
-        Supports nested transactions if called within an existing session context.
         """
         if self.db.in_transaction():
             async with self.db.begin_nested():

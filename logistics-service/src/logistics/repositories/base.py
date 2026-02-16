@@ -34,5 +34,5 @@ class BaseRepository(Generic[ModelType]):
         """Create a new database record."""
         db_obj = self.model(**obj_in_data)
         self.db_session.add(db_obj)
-        # We don't commit here; the Service layer manages the transaction boundary
+        # No commit here; the Service layer manages the transaction boundary
         return db_obj
