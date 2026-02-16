@@ -76,13 +76,13 @@ class OrderService:
         return await self.repository.get_with_items(order_id)
 
     async def update_status(self, order_id: int, new_status: OrderStatus) -> Order:
-        order = await self.repository.get(order_id)
+        order = await self.repository.get_with_items(order_id)
         if not order:
             raise HTTPException(status_code=404, detail="Order not found")
         if order.status == OrderStatus.CANCELLED and new_status == OrderStatus.SHIPPED:
             raise HTTPException(status_code=400, detail="Cannot ship a cancelled order.")
-        
+
         order.status = new_status
         await self.db.commit()
         await self.db.refresh(order)
-        return order
+        return await self.repository.get_with_items(order_id)
